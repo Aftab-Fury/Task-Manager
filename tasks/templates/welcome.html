@@ -82,36 +82,107 @@
         </div>
 
         <div class="row mt-5">
-            <div class="col-md-8 offset-md-2">
-                <h2 class="mb-4">API Endpoints</h2>
-                <div class="api-endpoint">
-                    <strong>Tasks:</strong>
-                    <ul class="list-unstyled">
-                        <li>GET /api/tasks/ - List all tasks</li>
-                        <li>POST /api/tasks/ - Create a new task</li>
-                        <li>GET /api/tasks/{id}/ - Get task details</li>
-                        <li>PUT /api/tasks/{id}/ - Update task</li>
-                        <li>DELETE /api/tasks/{id}/ - Delete task</li>
-                    </ul>
+            <div class="col-md-6">
+                <h2>API Endpoints</h2>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Tasks</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>GET /api/tasks/</strong> - List all tasks
+                            </li>
+                            <li class="list-group-item">
+                                <strong>POST /api/tasks/</strong> - Create a new task
+                            </li>
+                            <li class="list-group-item">
+                                <strong>GET /api/tasks/{id}/</strong> - Get task details
+                            </li>
+                            <li class="list-group-item">
+                                <strong>PUT /api/tasks/{id}/</strong> - Update task
+                            </li>
+                            <li class="list-group-item">
+                                <strong>DELETE /api/tasks/{id}/</strong> - Delete task
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="api-endpoint">
-                    <strong>Task Assignments:</strong>
-                    <ul class="list-unstyled">
-                        <li>POST /api/tasks/{id}/assign/ - Assign task to users</li>
-                        <li>GET /api/tasks/{id}/assignments/ - Get task assignments</li>
-                    </ul>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Task Assignments</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>POST /api/tasks/{id}/assign/</strong> - Assign users to a task
+                            </li>
+                            <li class="list-group-item">
+                                <strong>GET /api/tasks/{id}/assignments/</strong> - Get task assignments
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="api-endpoint">
-                    <strong>User Tasks:</strong>
-                    <ul class="list-unstyled">
-                        <li>GET /api/users/{id}/tasks/ - Get tasks assigned to a user</li>
-                    </ul>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Users</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>GET /api/users/</strong> - List all users
+                            </li>
+                            <li class="list-group-item">
+                                <strong>POST /api/users/</strong> - Create a new user
+                            </li>
+                            <li class="list-group-item">
+                                <strong>GET /api/users/{id}/</strong> - Get user details
+                            </li>
+                            <li class="list-group-item">
+                                <strong>PUT /api/users/{id}/</strong> - Update user
+                            </li>
+                            <li class="list-group-item">
+                                <strong>DELETE /api/users/{id}/</strong> - Delete user
+                            </li>
+                            <li class="list-group-item">
+                                <strong>POST /api/users/{id}/change_password/</strong> - Change user password
+                            </li>
+                            <li class="list-group-item">
+                                <strong>POST /api/users/{id}/reset_password/</strong> - Reset user password
+                            </li>
+                            <li class="list-group-item">
+                                <strong>GET /api/users/me/</strong> - Get current user profile
+                            </li>
+                            <li class="list-group-item">
+                                <strong>PUT /api/users/me/</strong> - Update current user profile
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">User Tasks</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>GET /api/users/{id}/tasks/</strong> - Get tasks assigned to a user
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Authentication</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>POST /api/token/</strong> - Get authentication token
+                            </li>
+                            <li class="list-group-item">
+                                <strong>POST /api/token/refresh/</strong> - Refresh authentication token
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row mt-5">
-            <div class="col-md-8 offset-md-2">
+            <div class="col-md-6">
                 <h2 class="mb-4">Getting Started</h2>
                 <ol>
                     <li>Access the <a href="/admin/">Admin Interface</a> to manage users and tasks</li>
