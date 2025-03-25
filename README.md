@@ -39,10 +39,10 @@ TaskManager/              # Project root directory
 
 ## Setup Instructions
 
-1. Create a virtual environment:
+1. Create a virtual environment (Windows/Linux):
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+venv\Scripts\activate  # On Linux: source venv/bin/activate
 ```
 
 2. Install dependencies:
