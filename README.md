@@ -1,6 +1,6 @@
-# Task Manager API
+# Task Manager API (API-only)
 
-A Django REST Framework-based API for managing tasks and user assignments. This project provides a robust API for creating, assigning, and tracking tasks with user management capabilities.
+A Django REST Framework-based API for managing tasks and user assignments. This project is API-only (no frontend templates) and is ready for deployment on Fly.io.
 
 ## Features
 
@@ -18,7 +18,7 @@ A Django REST Framework-based API for managing tasks and user assignments. This 
 TaskManager/              # Project root directory
 ├── taskmanager/         # Django project configuration
 │   ├── settings.py     # Project settings
-│   ├── urls.py         # Main URL routing
+│   ├── urls.py         # Main URL routing (API-only)
 │   ├── wsgi.py         # WSGI configuration
 │   └── asgi.py         # ASGI configuration
 ├── tasks/              # Django app directory
@@ -37,7 +37,7 @@ TaskManager/              # Project root directory
 └── requirements.txt   # Project dependencies
 ```
 
-## Setup Instructions
+## Local Development Setup
 
 1. Create a virtual environment (Windows/Linux):
 ```bash
@@ -81,347 +81,61 @@ The API documentation is available in two formats:
 
 ## API Endpoints
 
+Authentication: use session auth (login at `/accounts/login/`) or Basic auth.
+
 ### Tasks
 
-#### 1. List All Tasks
+- List tasks (supports pagination and filters):
 ```http
-GET /api/tasks/
-Authorization: Basic <credentials>
+GET /api/tasks/?page=1&status=pending&task_type=documentation
 ```
 
-Response:
-```json
-[
-    {
-        "id": 1,
-        "name": "Complete Project Documentation",
-        "description": "Write comprehensive documentation for the task management API",
-        "created_at": "2024-03-20T10:00:00Z",
-        "task_type": "documentation",
-        "completed_at": null,
-        "status": "pending",
-        "assigned_to": [],
-        "created_by": {
-            "id": 1,
-            "username": "admin",
-            "email": "admin@example.com",
-            "first_name": "Admin",
-            "last_name": "User"
-        }
-    }
-]
-```
-
-#### 2. Create a Task
+- Create a task:
 ```http
 POST /api/tasks/
 Content-Type: application/json
-Authorization: Basic <credentials>
 
 {
-    "name": "Complete Project Documentation",
-    "description": "Write comprehensive documentation for the task management API",
-    "task_type": "documentation"
+  "name": "Write docs",
+  "description": "Write API docs",
+  "task_type": "documentation",
+  "assigned_to_ids": [1, 2]
 }
 ```
 
-Response:
-```json
-{
-    "id": 1,
-    "name": "Complete Project Documentation",
-    "description": "Write comprehensive documentation for the task management API",
-    "created_at": "2024-03-20T10:00:00Z",
-    "task_type": "documentation",
-    "completed_at": null,
-    "status": "pending",
-    "assigned_to": [],
-    "created_by": {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "first_name": "Admin",
-        "last_name": "User"
-    }
-}
-```
-
-#### 3. Get Task Details
+- Retrieve / Update / Delete:
 ```http
-GET /api/tasks/1/
-Authorization: Basic <credentials>
+GET /api/tasks/<id>/
+PUT /api/tasks/<id>/
+PATCH /api/tasks/<id>/
+DELETE /api/tasks/<id>/
 ```
 
-Response:
-```json
-{
-    "id": 1,
-    "name": "Complete Project Documentation",
-    "description": "Write comprehensive documentation for the task management API",
-    "created_at": "2024-03-20T10:00:00Z",
-    "task_type": "documentation",
-    "completed_at": null,
-    "status": "pending",
-    "assigned_to": [],
-    "created_by": {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "first_name": "Admin",
-        "last_name": "User"
-    }
-}
-```
+### Task assignments
 
-#### 4. Update a Task
+- Assign users by IDs:
 ```http
-PUT /api/tasks/1/
+POST /api/tasks/<id>/assign/
 Content-Type: application/json
-Authorization: Basic <credentials>
 
-{
-    "name": "Updated Task Name",
-    "description": "Updated task description",
-    "task_type": "development",
-    "status": "in_progress"
-}
+{ "user_ids": [1, 2] }
 ```
 
-Response:
-```json
-{
-    "id": 1,
-    "name": "Updated Task Name",
-    "description": "Updated task description",
-    "created_at": "2024-03-20T10:00:00Z",
-    "task_type": "development",
-    "completed_at": null,
-    "status": "in_progress",
-    "assigned_to": [],
-    "created_by": {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "first_name": "Admin",
-        "last_name": "User"
-    }
-}
-```
-
-#### 5. Delete a Task
+- List assigned users:
 ```http
-DELETE /api/tasks/1/
-Authorization: Basic <credentials>
+GET /api/tasks/<id>/assignments/
 ```
 
-Response:
+### User tasks
+
+- By user ID:
 ```http
-HTTP 204 No Content
+GET /api/users/<user_id>/tasks/
 ```
 
-### Users
-
-#### 1. List All Users
+- By username:
 ```http
-GET /api/users/
-Authorization: Basic <credentials>
-```
-
-Response:
-```json
-[
-    {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "first_name": "Admin",
-        "last_name": "User",
-        "is_staff": true,
-        "is_active": true,
-        "date_joined": "2024-03-20T10:00:00Z"
-    },
-    {
-        "id": 2,
-        "username": "testuser1",
-        "email": "test1@example.com",
-        "first_name": "John",
-        "last_name": "Doe",
-        "is_staff": false,
-        "is_active": true,
-        "date_joined": "2024-03-20T11:00:00Z"
-    }
-]
-```
-
-#### 2. Create a User
-```http
-POST /api/users/
-Content-Type: application/json
-Authorization: Basic <credentials>
-
-{
-    "username": "newuser",
-    "email": "newuser@example.com",
-    "password": "securepassword123",
-    "first_name": "New",
-    "last_name": "User"
-}
-```
-
-Response:
-```json
-{
-    "id": 3,
-    "username": "newuser",
-    "email": "newuser@example.com",
-    "first_name": "New",
-    "last_name": "User",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2024-03-20T12:00:00Z"
-}
-```
-
-#### 3. Get User Details
-```http
-GET /api/users/1/
-Authorization: Basic <credentials>
-```
-
-Response:
-```json
-{
-    "id": 1,
-    "username": "admin",
-    "email": "admin@example.com",
-    "first_name": "Admin",
-    "last_name": "User",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2024-03-20T10:00:00Z"
-}
-```
-
-#### 4. Update a User
-```http
-PUT /api/users/1/
-Content-Type: application/json
-Authorization: Basic <credentials>
-
-{
-    "first_name": "Updated",
-    "last_name": "Name",
-    "email": "updated@example.com"
-}
-```
-
-Response:
-```json
-{
-    "id": 1,
-    "username": "admin",
-    "email": "updated@example.com",
-    "first_name": "Updated",
-    "last_name": "Name",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2024-03-20T10:00:00Z"
-}
-```
-
-#### 5. Delete a User
-```http
-DELETE /api/users/1/
-Authorization: Basic <credentials>
-```
-
-Response:
-```http
-HTTP 204 No Content
-```
-
-#### 6. Change User Password
-```http
-POST /api/users/1/change_password/
-Content-Type: application/json
-Authorization: Basic <credentials>
-
-{
-    "old_password": "currentpassword",
-    "new_password": "newpassword123"
-}
-```
-
-Response:
-```json
-{
-    "detail": "Password successfully changed."
-}
-```
-
-#### 7. Reset User Password
-```http
-POST /api/users/1/reset_password/
-Content-Type: application/json
-Authorization: Basic <credentials>
-
-{
-    "new_password": "newpassword123"
-}
-```
-
-Response:
-```json
-{
-    "detail": "Password successfully reset."
-}
-```
-
-#### 8. Get User Profile
-```http
-GET /api/users/me/
-Authorization: Basic <credentials>
-```
-
-Response:
-```json
-{
-    "id": 1,
-    "username": "admin",
-    "email": "admin@example.com",
-    "first_name": "Admin",
-    "last_name": "User",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2024-03-20T10:00:00Z"
-}
-```
-
-#### 9. Update User Profile
-```http
-PUT /api/users/me/
-Content-Type: application/json
-Authorization: Basic <credentials>
-
-{
-    "first_name": "Updated",
-    "last_name": "Name",
-    "email": "updated@example.com"
-}
-```
-
-Response:
-```json
-{
-    "id": 1,
-    "username": "admin",
-    "email": "updated@example.com",
-    "first_name": "Updated",
-    "last_name": "Name",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2024-03-20T10:00:00Z"
-}
+GET /api/users/<username>/tasks/
 ```
 
 ### Task Assignments
@@ -538,42 +252,40 @@ Response:
 ]
 ```
 
-### Error Responses
+### Pagination and filters
 
-#### 1. Authentication Error
-```http
-HTTP 401 Unauthorized
+- Pagination: `page` query param. Default page size: 10.
+- Filters for `/api/tasks/`: `status`, `task_type` (must be valid choices).
+
+### Error format
+
+All errors are wrapped in a consistent envelope:
+```json
 {
-    "detail": "Authentication credentials were not provided."
+  "error": {
+    "message": "Human readable message",
+    "code": "optional_machine_code",
+    "details": { "field": ["validation errors"], "...": "..." }
+  }
 }
 ```
 
-#### 2. Permission Error
-```http
-HTTP 403 Forbidden
-{
-    "detail": "You do not have permission to perform this action."
-}
+Examples:
+- 401 Unauthorized
+```json
+{ "error": { "message": "Authentication credentials were not provided." } }
 ```
-
-#### 3. Not Found Error
-```http
-HTTP 404 Not Found
-{
-    "detail": "Not found."
-}
+- 404 Not Found
+```json
+{ "error": { "message": "Not found." } }
 ```
-
-#### 4. Validation Error
-```http
-HTTP 400 Bad Request
+- 400 Validation error (task create)
+```json
 {
-    "name": [
-        "Task name must be at least 3 characters long."
-    ],
-    "task_type": [
-        "Select a valid choice. That choice is not one of the available choices."
-    ]
+  "error": {
+    "message": "Request could not be processed.",
+    "details": { "name": ["This field is required."] }
+  }
 }
 ```
 
@@ -654,3 +366,55 @@ The test suite creates the following test data:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
+
+---
+
+## Deploying to Fly.io
+
+### Prerequisites
+- Install Fly CLI: see `https://fly.io/docs/hands-on/install-flyctl/`
+- Create an account and log in: `fly auth signup` then `fly auth login`
+
+### Environment variables
+Set these on Fly (they are read in `taskmanager/settings.py`):
+- `SECRET_KEY`: a long random string
+- `DEBUG`: `False`
+- `FLY_APP_NAME`: set automatically by Fly during deploy (optional for local)
+
+### One-time setup
+```bash
+fly launch --no-deploy
+# Choose: Python, keep existing, region of your choice
+
+# Create a Postgres database
+fly postgres create --name <your-db-name>
+fly postgres attach --app <your-app-name> <your-db-name>
+
+# Set required secrets
+fly secrets set SECRET_KEY="$(python -c "import secrets; print(secrets.token_urlsafe(64))")" DEBUG=False
+```
+
+### Build and deploy
+```bash
+fly deploy
+```
+
+### Post-deploy
+```bash
+fly ssh console -C "python manage.py migrate && python manage.py collectstatic --noinput"
+```
+
+### Runtime
+- The app serves via `gunicorn` and uses `whitenoise` for static assets (admin + docs).
+- Database is configured via `DATABASE_URL` provided by Fly Postgres.
+
+### Health and logs
+```bash
+fly status
+fly logs
+```
+
+### URLs
+- API base: `https://<your-app-name>.fly.dev/api/`
+- Swagger: `https://<your-app-name>.fly.dev/swagger/`
+- ReDoc: `https://<your-app-name>.fly.dev/redoc/`

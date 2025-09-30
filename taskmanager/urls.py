@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from tasks.views import WelcomeView
+from django.views.generic.base import RedirectView
+from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -26,21 +27,26 @@ schema_view = get_schema_view(
         title="Task Manager API",
         default_version='v1',
         description="API documentation for Task Manager",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@taskmanager.local"),
-        license=openapi.License(name="BSD License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    path('', WelcomeView.as_view(), name='welcome'),
     path('admin/', admin.site.urls),
     path('api/', include('tasks.urls')),
-    
+    # Explicit auth routes using admin login template to avoid missing templates
+    path('accounts/login/', LoginView.as_view(template_name='admin/login.html'), name='login'),
+    path('accounts/logout/', LogoutView.as_view(next_page='/swagger/'), name='logout'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+
     # Swagger URLs
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    # Root and docs redirects
+    path('', RedirectView.as_view(url='/swagger/', permanent=False)),
+    path('docs/', RedirectView.as_view(url='/swagger/', permanent=False)),
 ]

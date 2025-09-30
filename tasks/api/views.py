@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.views import APIView
 
 from ..models import Task
 from .serializers import TaskSerializer, UserSerializer
@@ -54,18 +55,41 @@ class TaskViewSet(viewsets.ModelViewSet):
     def assign(self, request, pk=None):
         task = self.get_object()
         user_ids = request.data.get('user_ids', [])
-        
+
+        if not isinstance(user_ids, list):
+            return Response(
+                {
+                    'error': {
+                        'message': 'user_ids must be an array of integers',
+                        'code': 'invalid_payload',
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if not user_ids:
             return Response(
-                {'error': 'No user IDs provided'}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    'error': {
+                        'message': 'No user IDs provided',
+                        'code': 'missing_user_ids',
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         users = User.objects.filter(id__in=user_ids)
-        if not users.exists() or users.count() != len(user_ids):
+        missing_ids = sorted(set(user_ids) - set(users.values_list('id', flat=True)))
+        if missing_ids:
             return Response(
-                {'error': 'Invalid user IDs provided'}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    'error': {
+                        'message': 'Some user IDs do not exist',
+                        'code': 'invalid_user_ids',
+                        'details': {'missing_ids': missing_ids},
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         task.assigned_to.set(users)
@@ -92,7 +116,31 @@ class UserTaskViewSet(viewsets.ReadOnlyModelViewSet):
         # Handle schema generation case
         if getattr(self, 'swagger_fake_view', False):
             return Task.objects.none()
-            
         return Task.objects.filter(
             assigned_to__id=self.kwargs['user_id']
-        ).select_related('created_by').prefetch_related('assigned_to') 
+        ).select_related('created_by').prefetch_related('assigned_to')
+
+
+class UserNameTaskList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description='List tasks assigned to a user by username',
+        responses={200: TaskSerializer(many=True), 404: 'User not found'}
+    )
+    def get(self, request, username: str):
+        user = User.objects.filter(username=username).first()
+        if not user:
+            return Response(
+                {
+                    'error': {
+                        'message': 'User not found',
+                        'code': 'user_not_found',
+                        'details': {'username': username},
+                    }
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        queryset = Task.objects.filter(assigned_to=user).select_related('created_by').prefetch_related('assigned_to')
+        serializer = TaskSerializer(queryset, many=True)
+        return Response(serializer.data)
